@@ -93,7 +93,7 @@ services:
       FLUXMIND_MQ_URL: kafka://kafka:9092
       FLUXMIND_MQ_TOPIC_CONVERSATION_EVENTS: conversation-events
       FLUXMIND_OLLAMA_BASE_URL: http://ollama:11434
-      FLUXMIND_OLLAMA_MODEL: llama3.1
+      FLUXMIND_OLLAMA_MODEL: llama3
       FLUXMIND_JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
       FLUXMIND_JWT_AUDIENCE: localhost:8000
       FLUXMIND_JWT_ISSUER: localhost:8000
@@ -116,7 +116,7 @@ services:
       FLUXMIND_MQ_TOPIC_CONVERSATION_EVENTS: conversation-events
       FLUXMIND_MQ_GROUP_ID_EVENTS_CONSUMER: fluxmind-events-consumer
       FLUXMIND_OLLAMA_BASE_URL: http://ollama:11434
-      FLUXMIND_OLLAMA_MODEL: llama3.1
+      FLUXMIND_OLLAMA_MODEL: llama3
     restart: unless-stopped
 
   worker:

@@ -15,7 +15,7 @@ Event-driven LLM chatbot backend monorepo built with Polylith architecture.
 **1. Download Ollama Model (one-time setup):**
 ```bash
 docker-compose up -d ollama
-docker exec fluxmind-ollama ollama pull llama3.1
+docker exec fluxmind-ollama ollama pull llama3
 ```
 
 **2. Run Database Migrations:**
@@ -41,7 +41,7 @@ This starts Postgres, Kafka, Redis, and Ollama.
 ### 2. Download Ollama Model
 
 ```bash
-docker exec fluxmind-ollama ollama pull llama3.1
+docker exec fluxmind-ollama ollama pull llama3
 ```
 
 ### 3. Run Database Migrations
@@ -84,7 +84,7 @@ FLUXMIND_MQ_TOPIC_CONVERSATION_EVENTS=conversation-events
 FLUXMIND_MQ_GROUP_ID_EVENTS_CONSUMER=fluxmind-events-consumer
 FLUXMIND_DB_URL=postgresql+asyncpg://fluxmind:fluxmind@localhost:5432/fluxmind
 FLUXMIND_OLLAMA_BASE_URL=http://localhost:11434
-FLUXMIND_OLLAMA_MODEL=llama3.1
+FLUXMIND_OLLAMA_MODEL=llama3
 FLUXMIND_WORKER_ARCHIVE_INTERVAL_SECONDS=3600
 FLUXMIND_WORKER_ARCHIVE_OLDER_THAN_DAYS=30
 ```

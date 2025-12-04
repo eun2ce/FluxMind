@@ -12,7 +12,7 @@ class AppSettings(BaseSettings):
     mq_group_id_events_consumer: str = "fluxmind-events-consumer"
     db_url: str = "postgresql+asyncpg://fluxmind:fluxmind@localhost:5432/fluxmind"
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.1"
+    ollama_model: str = "llama3"
     worker_archive_interval_seconds: int = 3600
     worker_archive_older_than_days: int = 30
     jwt_secret_key: str = "your-secret-key-change-in-production"
