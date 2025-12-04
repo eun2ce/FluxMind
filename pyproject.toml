@@ -17,6 +17,7 @@ dependencies = [
     "asyncpg>=0.31.0",
     "alembic>=1.17.2",
     "aiokafka>=0.12.0",
+    "python-jose[cryptography]>=3.3.0",
 ]
 
 [dependency-groups]
@@ -48,6 +49,7 @@ dev-mode-dirs = ["components", "bases", "development", "."]
 "components/fluxmind/conversation" = "fluxmind/conversation"
 "components/fluxmind/database" = "fluxmind/database"
 "components/fluxmind/domain_core" = "fluxmind/domain_core"
+"components/fluxmind/jwt" = "fluxmind/jwt"
 "components/fluxmind/llm" = "fluxmind/llm"
 "components/fluxmind/mq" = "fluxmind/mq"
 "components/fluxmind/platform" = "fluxmind/platform"

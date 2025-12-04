@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import Depends, FastAPI
 from fluxmind.conversation import ConversationService
 from fluxmind.domain_core import MessageReceivedEvent, MessageRole
+from fluxmind.jwt import get_current_user
 from fluxmind.mq import EventPublisher
 from fluxmind.platform import get_settings
 from pydantic import BaseModel
@@ -29,6 +30,7 @@ async def health_check() -> dict[str, str]:
 @app.post("/conversations", status_code=201, response_model=CreateConversationResponse)
 async def create_conversation(
     payload: CreateConversationRequest,
+    current_user: dict = Depends(get_current_user),
     conversation_service: ConversationService = Depends(get_conversation_service),
     event_publisher: EventPublisher = Depends(get_event_publisher),
 ) -> CreateConversationResponse:

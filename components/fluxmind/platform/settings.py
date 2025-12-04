@@ -15,6 +15,12 @@ class AppSettings(BaseSettings):
     ollama_model: str = "llama3.1"
     worker_archive_interval_seconds: int = 3600
     worker_archive_older_than_days: int = 30
+    jwt_secret_key: str = "your-secret-key-change-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 30
+    jwt_refresh_token_expire_days: int = 7
+    jwt_audience: str = "localhost:8000"
+    jwt_issuer: str = "localhost:8000"
 
     class Config:
         env_prefix = "FLUXMIND_"
