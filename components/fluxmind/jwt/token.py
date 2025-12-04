@@ -3,10 +3,9 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from jose import ExpiredSignatureError, JWTError, jwt
-
 from fluxmind.jwt.exceptions import TokenExpiredException, TokenInvalidException
 from fluxmind.platform import get_settings
+from jose import ExpiredSignatureError, JWTError, jwt
 
 
 def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
@@ -16,7 +15,12 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.jwt_access_token_expire_minutes)
-    to_encode.update({"exp": expire, "iat": datetime.utcnow()})
+    to_encode.update({
+        "exp": expire,
+        "iat": datetime.utcnow(),
+        "aud": settings.jwt_audience,
+        "iss": settings.jwt_issuer,
+    })
     encoded_jwt = jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
     return encoded_jwt
 

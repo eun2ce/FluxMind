@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fluxmind.jwt.exceptions import TokenExpiredException, TokenInvalidException
 from fluxmind.jwt.token import verify_token
 

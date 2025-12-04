@@ -10,6 +10,26 @@ Event-driven LLM chatbot backend monorepo built with Polylith architecture.
 
 ## Quick Start
 
+### Docker Compose (Recommended)
+
+**1. Download Ollama Model (one-time setup):**
+```bash
+docker-compose up -d ollama
+docker exec fluxmind-ollama ollama pull llama3.1
+```
+
+**2. Run Database Migrations:**
+```bash
+docker-compose --profile migrations up db-migrations
+```
+
+**3. Start All Services:**
+```bash
+docker-compose up -d
+```
+
+### Manual Setup
+
 ### 1. Start Infrastructure
 
 ```bash
@@ -50,9 +70,7 @@ uv run python -m projects.fluxmind-worker.main
 ### 5. Test
 
 ```bash
-curl -X POST http://localhost:8000/conversations \
-  -H "Content-Type: application/json" \
-  -d '{"initial_message": "Hello"}'
+TOKEN=$(docker-compose exec -T api uv run python -c "from fluxmind.jwt.token import create_access_token; from datetime import timedelta; print(create_access_token({'sub': 'test-user'}, timedelta(hours=1)))") && curl -X POST http://localhost:8000/conversations -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"initial_message": "Hello"}'
 ```
 
 ## Environment Variables

@@ -1,0 +1,142 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: fluxmind-postgres
+    environment:
+      POSTGRES_USER: fluxmind
+      POSTGRES_PASSWORD: fluxmind
+      POSTGRES_DB: fluxmind
+    ports:
+      - "5432:5432"
+    volumes:
+      - fluxmind-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fluxmind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: fluxmind-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - fluxmind-ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+
+  db-migrations:
+    build: .
+    container_name: fluxmind-db-migrations
+    command: uv run python projects/fluxmind-db-migrations/main.py upgrade head
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      FLUXMIND_DB_URL: postgresql+asyncpg://fluxmind:fluxmind@postgres:5432/fluxmind
+    profiles:
+      - migrations
+
+  api:
+    build: .
+    container_name: fluxmind-api
+    command: uv run python -m projects.fluxmind-api.main
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      FLUXMIND_API_PORT: 8000
+      FLUXMIND_DB_URL: postgresql+asyncpg://fluxmind:fluxmind@postgres:5432/fluxmind
+      FLUXMIND_MQ_URL: kafka://kafka:9092
+      FLUXMIND_MQ_TOPIC_CONVERSATION_EVENTS: conversation-events
+      FLUXMIND_OLLAMA_BASE_URL: http://ollama:11434
+      FLUXMIND_OLLAMA_MODEL: llama3.1
+      FLUXMIND_JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
+      FLUXMIND_JWT_AUDIENCE: localhost:8000
+      FLUXMIND_JWT_ISSUER: localhost:8000
+    restart: unless-stopped
+
+  events-consumer:
+    build: .
+    container_name: fluxmind-events-consumer
+    command: uv run python -m projects.fluxmind-events-consumer.main
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      FLUXMIND_DB_URL: postgresql+asyncpg://fluxmind:fluxmind@postgres:5432/fluxmind
+      FLUXMIND_MQ_URL: kafka://kafka:9092
+      FLUXMIND_MQ_TOPIC_CONVERSATION_EVENTS: conversation-events
+      FLUXMIND_MQ_GROUP_ID_EVENTS_CONSUMER: fluxmind-events-consumer
+      FLUXMIND_OLLAMA_BASE_URL: http://ollama:11434
+      FLUXMIND_OLLAMA_MODEL: llama3.1
+    restart: unless-stopped
+
+  worker:
+    build: .
+    container_name: fluxmind-worker
+    command: uv run python -m projects.fluxmind-worker.main
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      FLUXMIND_DB_URL: postgresql+asyncpg://fluxmind:fluxmind@postgres:5432/fluxmind
+      FLUXMIND_MQ_URL: kafka://kafka:9092
+      FLUXMIND_MQ_TOPIC_CONVERSATION_EVENTS: conversation-events
+      FLUXMIND_WORKER_ARCHIVE_INTERVAL_SECONDS: 3600
+      FLUXMIND_WORKER_ARCHIVE_OLDER_THAN_DAYS: 30
+    restart: unless-stopped
+
+volumes:
+  fluxmind-postgres-data:
+  fluxmind-ollama-data:
+

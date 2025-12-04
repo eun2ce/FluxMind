@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 
-from alembic.config import CommandLine
+from alembic.config import CommandLine, Config
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -15,6 +15,9 @@ def main(argv: list[str] | None = None) -> int:
         "alembic.ini",
     )
 
+    if not os.path.exists(alembic_cfg_path):
+        raise SystemExit(f"Alembic config not found: {alembic_cfg_path}")
+
     cli = CommandLine(prog="fluxmind-db-migrations")
     options = cli.parser.parse_args(argv)
 
@@ -22,10 +25,7 @@ def main(argv: list[str] | None = None) -> int:
         cli.parser.print_help()
         return 1
 
-    if not os.path.exists(alembic_cfg_path):
-        raise SystemExit(f"Alembic config not found: {alembic_cfg_path}")
-
-    config = cli.Config(alembic_cfg_path)
+    config = Config(alembic_cfg_path)
     return cli.run_cmd(config, options)
 
 

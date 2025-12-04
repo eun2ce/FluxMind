@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from fluxmind.domain_core import MessageRole
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -58,7 +59,11 @@ class MessageRow(Base):
         nullable=False,
     )
     role: Mapped[MessageRole] = mapped_column(
-        Enum(MessageRole, name="message_role_enum"),
+        SAEnum(
+            MessageRole,
+            name="message_role_enum",
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
+        ),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)

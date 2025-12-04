@@ -8,7 +8,7 @@ from uuid import UUID, uuid4
 from .models import ConversationId, MessageId, MessageRole
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class BaseEvent:
     event_id: UUID = field(default_factory=uuid4)
     occurred_at: datetime = field(
@@ -21,7 +21,7 @@ class BaseEvent:
         return self.__class__.__name__
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class MessageReceivedEvent(BaseEvent):
     conversation_id: ConversationId
     message_id: MessageId
@@ -29,7 +29,7 @@ class MessageReceivedEvent(BaseEvent):
     content: str
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class AssistantRespondedEvent(BaseEvent):
     conversation_id: ConversationId
     user_message_id: MessageId
@@ -37,12 +37,12 @@ class AssistantRespondedEvent(BaseEvent):
     content: str
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class ConversationArchivedEvent(BaseEvent):
     conversation_id: ConversationId
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@dataclass(kw_only=True)
 class MessageFlaggedEvent(BaseEvent):
     conversation_id: ConversationId
     message_id: MessageId
