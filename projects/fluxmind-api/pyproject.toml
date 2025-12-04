@@ -1,0 +1,21 @@
+[project]
+name = "fluxmind-api"
+version = "0.1.0"
+description = "FluxMind API service"
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "fluxmind/api",
+    "fluxmind/platform",
+    "fluxmind/conversation",
+    "fluxmind/database",
+    "fluxmind/mq",
+    "fluxmind/domain_core",
+]
+
